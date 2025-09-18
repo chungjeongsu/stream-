@@ -4,6 +4,7 @@ import com.stream.practice.basic.Apple;
 import com.stream.practice.basic.AppleBox;
 import com.stream.practice.basic.Color;
 import com.stream.practice.basic.SugarGrade;
+import java.util.stream.Collector;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,27 +72,12 @@ public class HMixedTest {
     }
 
     @DisplayName("""
-            => 색깔이 GREEN인 사과들을
-            => 가격 기준 내림차순으로 정렬하여라.
-            """)
-    @Test
-    public void mix3() {
-        //given
-        List<Apple> apples = appleBox.getApples();
-
-        //when(정답코드 작성)
-
-        //then
-
-    }
-
-    @DisplayName("""
             <<필터링 + collect 또는 필터링 + reduce()>>
             => 당도가 HIGH인 사과들의
             => 총 가격을 구하라
             """)
     @Test
-    public void mix4() {
+    public void mix3() {
         //given
         List<Apple> apples = appleBox.getApples();
 
@@ -113,7 +99,7 @@ public class HMixedTest {
             => null이 나올 수 있는 메서드에서 자바진영에서 null 안전성을 높이기 위해 어떠한 wrapper를 사용했는지 살펴볼 것.
             """)
     @Test
-    public void mix5() {
+    public void mix4() {
         //given
         List<Apple> apples = appleBox.getApples();
 
@@ -132,7 +118,7 @@ public class HMixedTest {
             => 합을 구하여라
             """)
     @Test
-    public void mix6() {
+    public void mix5() {
         //given
         List<Apple> apples = appleBox.getApples();
 
@@ -150,7 +136,7 @@ public class HMixedTest {
             => Map<Color, Double>의 형태로 반환하여라.
             """)
     @Test
-    public void mix7() {
+    public void mix6() {
         //given
         List<Apple> apples = appleBox.getApples();
 
@@ -168,16 +154,20 @@ public class HMixedTest {
     @DisplayName("""
             => 무게가 120 이상인 것들을 골라
             => 가격이 비싼 것들 순으로 정렬하여,
-            => List<Color>의 형태로 반환하여라.
+            => 가장 비싼 3개를 고른 후
+            => ( "{색깔1},{색깔2}...)"의 형식의 문자열로 반환하여라.
+            => 중복된 색은 허용하지 않는다.
             """)
     @Test
-    public void mix8() {
+    public void mix7() {
         //given
         List<Apple> apples = appleBox.getApples();
 
         //when
+        String rawColors = null;
 
         //then
+        Assertions.assertThat(rawColors).isEqualTo("초록,흑");
     }
 }
 
@@ -218,10 +208,6 @@ public class HMixedTest {
                 .toList();
 
 3번
-
-
-
-4번
             apples.stream()
                 .filter(apple -> apple.getSugarGrade() == SugarGrade.HIGH)
                 .mapToInt(Apple::getPrice)
@@ -236,20 +222,29 @@ public class HMixedTest {
                 .mapToInt(Apple::getPrice)
                 .sum();
 
-5번
+4번
             apples.stream()
                 .max(Comparator.comparing(Apple::getWeight())
                 .orElseThrow(() -> new NoSuchElementException());
 
-6번
+5번
             apples.stream()
                 .sorted(Comparator.comparing(Apple::getWeight).reversed())
                 .limit(3)
                 .mapToInt(Apple::getWeight)
                 .sum();
 
-7번
+6번
             apples.stream()
                 .filter(apple -> apple.getPrice() >= 1300)
                 .collect(Collectors.groupingBy(Apple::getColor, Collectors.averagingInt(Apple::getPrice)));
+
+7번
+            apples.stream()
+            .filter(apple -> apple.getWeight() >= 120)
+            .sorted(Comparator.comparing(Apple::getWeight).reversed())
+            .limit(3)
+            .map(apple -> apple.getColor().getDescription())
+            .distinct()
+            .collect(Collectors.joining(","));
  */

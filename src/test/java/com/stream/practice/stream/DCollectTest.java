@@ -1,9 +1,13 @@
 package com.stream.practice.stream;
 
+import static java.util.Comparator.comparingInt;
+
 import com.stream.practice.basic.Apple;
 import com.stream.practice.basic.AppleBox;
 import com.stream.practice.basic.Color;
 import com.stream.practice.basic.SugarGrade;
+import java.util.Arrays;
+import java.util.function.Function;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,7 +82,9 @@ public class DCollectTest {
         Map<Integer, List<Apple>> applesMap = null;
 
         //then
-        Assertions.assertThat(true);
+        applesMap.forEach((price, list) ->
+            Assertions.assertThat(list)
+                .allSatisfy(a -> Assertions.assertThat(a.getPrice()).isEqualTo(price)));
     }
 
     @DisplayName("""
@@ -93,11 +99,13 @@ public class DCollectTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답 코드 작성)
-        Map<Color, Long> appleMap = apples.stream()
-                .collect(Collectors.groupingBy(Apple::getColor, Collectors.counting()));
+        Map<Color, Long> appleMap = null;
 
         //then
-        Assertions.assertThat(true);
+        Map<Color, Long> expected = Arrays.stream(Color.values())
+            .collect(Collectors.toMap(Function.identity(),
+                c -> apples.stream().filter(a -> a.getColor() == c).count()));
+        Assertions.assertThat(appleMap).isEqualTo(expected);
     }
 
     @DisplayName("""
@@ -115,7 +123,18 @@ public class DCollectTest {
         Map<Color, Double> applesMap = null;
 
         //then
-        Assertions.assertThat(true);
+        Map<Color, Double> expected = Arrays.stream(Color.values())
+            .collect(Collectors.toMap(Function.identity(), c -> {
+                var stats = apples.stream()
+                    .filter(a -> a.getColor() == c)
+                    .mapToInt(Apple::getPrice)
+                    .summaryStatistics();
+                return stats.getCount() == 0 ? 0d : stats.getAverage();
+            }));
+
+        expected.forEach((color, avg) ->
+            Assertions.assertThat(applesMap.getOrDefault(color, 0d))
+                .isCloseTo(avg, Assertions.offset(1e-9)));
     }
 
     @DisplayName("""
@@ -133,14 +152,31 @@ public class DCollectTest {
         Map<Color, Optional<Apple>> applesMap = null;
 
         //then
-        Assertions.assertThat(true);
+        Assertions.assertThat(applesMap.keySet())
+            .containsExactlyInAnyOrder(Color.values());
+
+        Arrays.stream(Color.values()).forEach(color -> {
+            Optional<Apple> fromMap = applesMap.get(color);
+            Assertions.assertThat(fromMap).isPresent();
+
+            Optional<Apple> expected = apples.stream()
+                .filter(a -> a.getColor() == color)
+                .max(comparingInt(Apple::getPrice));
+
+            Assertions.assertThat(fromMap).isEqualTo(expected);
+        });
+
+        applesMap.values().forEach(opt ->
+            opt.ifPresent(a ->
+                Assertions.assertThat(a.getPrice()).isBetween(1000, 2000)));
     }
 
     @DisplayName("""
             <<특정 조건으로 그룹 나누기>>
+            가격이 1500 초과 여부로 그룹을 나눠 Map<Boolean, List<Apple>>로 만들어라.
             """)
     @Test
-    public void collectAndGroupBy5() {
+    public void collect6() {
         //given
         List<Apple> apples = appleBox.getApples();
 
@@ -148,7 +184,23 @@ public class DCollectTest {
         Map<Boolean, List<Apple>> applesMap = null;
 
         //then
-        Assertions.assertThat(true);
+        List<Apple> gt = applesMap.get(true);
+        List<Apple> le = applesMap.get(false);
+
+        Assertions.assertThat(gt).doesNotContainAnyElementsOf(le);
+        Assertions.assertThat(gt.size() + le.size()).isEqualTo(apples.size());
+
+        Assertions.assertThat(gt).allSatisfy(a ->
+            Assertions.assertThat(a.getPrice()).isGreaterThan(1500));
+        Assertions.assertThat(le).allSatisfy(a ->
+            Assertions.assertThat(a.getPrice()).isLessThanOrEqualTo(1500));
+
+        Assertions.assertThat(gt)
+            .containsExactlyInAnyOrderElementsOf(
+                apples.stream().filter(a -> a.getPrice() > 1500).toList());
+        Assertions.assertThat(le)
+            .containsExactlyInAnyOrderElementsOf(
+                apples.stream().filter(a -> a.getPrice() <= 1500).toList());
     }
 }
 
