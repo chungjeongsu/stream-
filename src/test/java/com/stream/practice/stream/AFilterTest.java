@@ -8,9 +8,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
 import java.util.List;
 import java.util.function.Predicate;
+
+import static com.stream.practice.basic.SugarGrade.*;
 
 @SpringBootTest
 public class AFilterTest {
@@ -23,6 +26,9 @@ public class AFilterTest {
      */
     @Autowired
     private AppleBox appleBox;
+
+    // @Autowired
+    // private AnnotationMBeanExporter annotationMBeanExporter;
 
     @DisplayName("""
             <<기본 filter()>>
@@ -42,13 +48,15 @@ public class AFilterTest {
         List<Apple> apples = appleBox.getApples();
 
         //when (정답코드 작성)
-        List<Apple> sweeterApples = null;
+        List<Apple> sweeterApples = apples.stream()
+                .filter(apple -> apple.isSweeterThan(MIDDLE) && apple.isSweeterThan(LOW))
+                .toList();
 
         //then
         Assertions.assertThat(sweeterApples)
                 .hasSize(27)                //27개인가?
                 .extracting(Apple::getSugarGrade)   //sugarGrade만 추출
-                .containsOnly(SugarGrade.HIGH);     //High만 포함하고 있는가?
+                .containsOnly(HIGH);     //High만 포함하고 있는가?
     }
 
     @DisplayName("""
@@ -67,13 +75,16 @@ public class AFilterTest {
         List<Apple> apples = appleBox.getApples();
 
         //when (정답코드 작성)
-        List<Apple> sweeterAndExpensiveApples = null;
+        List<Apple> sweeterAndExpensiveApples = apples.stream()
+                .filter(apple -> apple.isSweeterThan(MIDDLE) && apple.isSweeterThan(LOW))
+                .filter(apple -> apple.isExpensiveThan(1200))
+                .toList();
 
         //then
         Assertions.assertThat(sweeterAndExpensiveApples)
                 .hasSize(21)
                 .allSatisfy(apple -> {
-                    Assertions.assertThat(apple.getSugarGrade()).isEqualTo(SugarGrade.HIGH);
+                    Assertions.assertThat(apple.getSugarGrade()).isEqualTo(HIGH);
                     Assertions.assertThat(apple.getPrice()).isGreaterThanOrEqualTo(1200);
                 });
     }
@@ -94,17 +105,19 @@ public class AFilterTest {
         //given
         List<Apple> apples = appleBox.getApples();
 
-        Predicate<Apple> sweeter = apple -> apple.isSweeterThan(SugarGrade.MIDDLE);
+        Predicate<Apple> sweeter = apple -> apple.isSweeterThan(MIDDLE);
         Predicate<Apple> expensive = apple -> apple.isExpensiveThan(1200);
 
         //when (정답코드 작성)
-        List<Apple> sweeterAndExpensiveApples = null;
+        List<Apple> sweeterAndExpensiveApples = apples.stream()
+                .filter(sweeter.and(expensive))
+                .toList();
 
         //then
         Assertions.assertThat(sweeterAndExpensiveApples)
                 .hasSize(21)
                 .allSatisfy(apple -> {
-                    Assertions.assertThat(apple.getSugarGrade()).isEqualTo(SugarGrade.HIGH);
+                    Assertions.assertThat(apple.getSugarGrade()).isEqualTo(HIGH);
                     Assertions.assertThat(apple.getPrice()).isGreaterThanOrEqualTo(1200);
                 });
     }
