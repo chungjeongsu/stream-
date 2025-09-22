@@ -34,7 +34,9 @@ public class BMapTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답코드 작성)
-        List<SugarGrade> sugarGrades = null;
+        List<SugarGrade> sugarGrades = apples.stream()
+                .map(Apple::getSugarGrade)
+                .toList();
 
         //then
         Assertions.assertThat(sugarGrades)
@@ -54,7 +56,9 @@ public class BMapTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답코드 작성)
-        List<Apple> repricedApples = null;
+        List<Apple> repricedApples = apples.stream()
+                        .map(apple -> apple.repriceBy(100))
+                        .toList();
 
         //then
         Assertions.assertThat(repricedApples)
@@ -73,6 +77,7 @@ public class BMapTest {
             
             => enum Color는 color.getDescription()을 사용해 매핑하여라.
             => enum SugarGrade는 sugarGrade.getGrade()를 사용해 매핑하여라.
+            -> 여기에서부터 map4처럼 구현해부렸네,,,
             """)
     @Test
     public void map3() {
@@ -80,7 +85,9 @@ public class BMapTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답코드 작성)
-        List<AppleMapDTO> appleMapDTOs = null;
+        List<AppleMapDTO> appleMapDTOs = apples.stream()
+                .map(AppleMapDTO::from)
+                .toList();
 
         //then
         Assertions.assertThat(appleMapDTOs)
@@ -104,6 +111,7 @@ public class BMapTest {
             => 매핑은 DTO에 설명글이 써져있다.
             **Stream에서는 3번의 코드 블록처럼 늘어놓는 것보다, 메서드를 만들어 캡슐화를 지켜주는 것이 가독성이 좋을 것이다.**
             => 어띃게 생각하심까??
+            -> 동의합니당 (●'⎵'●)
             """)
     @Test
     public void map4() {
@@ -111,7 +119,9 @@ public class BMapTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답 코드 작성)
-        List<AppleMapDTO> appleMapDTOs = null;
+        List<AppleMapDTO> appleMapDTOs = apples.stream()
+                .map(AppleMapDTO::from)
+                .toList();
 
         //then
         Assertions.assertThat(appleMapDTOs)
@@ -141,7 +151,7 @@ public class BMapTest {
         List<Apple> apples = appleBox.getApples();
 
         //when(정답코드 작성)
-        AppleMapDTOs appleMapDTOs = null;
+        AppleMapDTOs appleMapDTOs = AppleMapDTOs.from(apples);
 
         //then
         Assertions.assertThat(appleMapDTOs.getAppleMapDTOs())
