@@ -1,21 +1,30 @@
 package com.stream.practice.basic.dto;
 
 import com.stream.practice.basic.Apple;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppleMapDTO {
     private int weight;
     private String color;
     private int sugarGrade;
     private int price;
 
-    //여기에 매핑 메서드를 작성해본다. 여러가지 방법들 예시는 아래에 있다.
+    // 여기에 매핑 메서드를 작성해본다. 여러가지 방법들 예시는 아래에 있다.
 
+    public static AppleMapDTO from(Apple apple){
+        return AppleMapDTO.builder()
+                .weight(apple.getWeight())
+                .color(apple.getColor().getDescription())
+                .sugarGrade(apple.getSugarGrade().getGrade())
+                .price(apple.getPrice())
+                .build();
+    }
 }
 
 
